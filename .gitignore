@@ -1,2 +1,4 @@
+quiz-server/node_modules
+quiz-server/.env
 quiz-client/node_modules
 quiz-client/package-lock.json
