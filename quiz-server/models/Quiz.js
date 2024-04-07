@@ -7,10 +7,13 @@ const quizSchema = new Schema({
         required: true
     },
     description: String,
+    author: {
+        type : Schema.Types.ObjectId,
+        ref : 'User',
+        required : true
+    },
     questions: [
         {
-            type: Schema.Types.ObjectId,
-            ref: 'Question'
         }
     ]
 });

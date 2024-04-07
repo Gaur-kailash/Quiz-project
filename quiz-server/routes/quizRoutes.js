@@ -7,7 +7,18 @@ const Question = require('../models/Question');
 // Route for fetching all quizzes
 router.get('/', async (req, res) => {
     try {
-        const quizzes = await Quiz.find({}).populate('questions');
+        const quizzes = await Quiz.find({}).populate('questions').populate('author');
+        res.json(quizzes);
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send('Server error');
+    }
+});
+// Route for fetching quiz by author ID
+router.get('/:id', async (req, res) => {
+    try {
+        const {id} = req.params;
+        const quizzes = await Quiz.find({author:{['_id']:id}}).populate('questions').populate('author');
         res.json(quizzes);
     } catch (error) {
         console.error(error.message);
@@ -16,13 +27,15 @@ router.get('/', async (req, res) => {
 });
 // Route for creating a quiz (admin only)
 router.post('/create', async(req, res) => {
-    const { title, description } = req.body;
+    const { title, description ,author,questions} = req.body;
 
     try {
         // Create a new quiz
         const quiz = new Quiz({
             title,
-            description
+            description,
+            questions,
+            author
         });
 
         // Save the quiz to the database

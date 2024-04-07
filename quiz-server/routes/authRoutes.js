@@ -26,8 +26,8 @@ router.post('/login', async (req, res) => {
         }
 
         // Generate JWT token
-        const token = jwt.sign({ id: user._id },process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token ,userType});
+        const token = jwt.sign({ id: user._id },process.env.JWT_SECRET, { expiresIn: '12h' });
+        res.json({ token ,userType,userId : user['_id']});
     } catch (error) {
         console.error(error.message);
         res.status(500).send('Server error');
@@ -60,7 +60,7 @@ router.post('/register', async (req, res) => {
         await user.save();
 
         // Generate JWT token
-        const token = jwt.sign({ id: user._id },process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id },process.env.JWT_SECRET, { expiresIn: '12h' });
         res.json({ token });
     } catch (error) {
         console.error(error.message);
