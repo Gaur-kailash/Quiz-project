@@ -6,10 +6,10 @@ const AppContext = createContext();
 const AppProvider = ({ children }) => {
     const [user, setUser] = useState({});
     const [quiz, setQuiz] = useState({});
-    const [create, setCreate] = useState(false)
+    const [updateFlag, setUpdateFlag] = useState(false)
 
     return (
-        <AppContext.Provider value={{ user, setUser ,quiz,setQuiz}}>
+        <AppContext.Provider value={{ user, setUser ,quiz,setQuiz,updateFlag,setUpdateFlag}}>
             {children}
         </AppContext.Provider>
     );

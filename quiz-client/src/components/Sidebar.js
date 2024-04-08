@@ -3,7 +3,7 @@ import { AppContext } from '../context/AppProvider';
 
 const Sidebar = () => {
     const user = JSON.parse(localStorage.getItem('user'));
-    const {setQuiz } = useContext(AppContext)
+    const {setQuiz ,updateFlag,setUpdateFlag} = useContext(AppContext)
     const [quizzes,setQuizzes] = useState([]);
     const fetchData = async()=>{
         if(user.userType === 'Admin'){
@@ -30,14 +30,16 @@ const Sidebar = () => {
     }
     useEffect(()=>{
         fetchData();
-    },[])
+    },[updateFlag])
     return (
         <div className="col-md-3">
         {user.userType === 'User' ? <div>
                 <h2>Quizzes</h2>
                 <ul className="list-group">
                     {quizzes?.map(quiz => (
-                        <li key={quiz.id} className="list-group-item" onClick={() =>{setQuiz(quiz)}}>
+                        <li key={quiz.id} className="list-group-item" onClick={() =>{
+                            setUpdateFlag(!updateFlag)
+                            setQuiz(quiz)}}>
                             {quiz.title}
                         </li>
                     ))}
@@ -46,7 +48,9 @@ const Sidebar = () => {
                 <h2>My Quizzes</h2>
                 <ul className="list-group">
                     {quizzes?.map(quiz => (
-                        <li key={quiz.id} className="list-group-item" onClick={() =>{setQuiz(quiz)}}>
+                        <li key={quiz.id} className="list-group-item" onClick={() =>{
+                            setUpdateFlag(!updateFlag)
+                            setQuiz(quiz)}}>
                             {quiz.title}
                         </li>
                     ))}

@@ -3,7 +3,7 @@ import { AppContext } from '../context/AppProvider';
 
 
 function AdminContent() {
-    const {quiz} = useContext(AppContext);
+    const {quiz,setQuiz,updateFlag,setUpdateFlag} = useContext(AppContext);
     console.log(quiz,"on admin")
     const user = JSON.parse(localStorage.getItem('user'));
     const [quizData, setQuizData] = useState({
@@ -44,23 +44,58 @@ function AdminContent() {
         setQuizData({ ...quizData, questions });
     };
 
+    const handelDelete = async()=>{
+        try{
+            const result = await fetch(`http://localhost:5000/api/quizzes/${quiz['_id']}/delete`,{
+                method : 'DELETE',
+                headers : {'Cotnent-Type' : "application/json",
+                'Authorization' : user.token}
+            })
+            setUpdateFlag(!updateFlag);
+            setQuiz({})
+        }
+        catch(err){
+            console.log("Error while deleting",err);
+        }
+    }
+
     const handleSubmit = async(e) => {
         e.preventDefault();
         let data = quizData;
-        data = {...data,author:user.userId};
         console.log("data",data)
-        try{
-            let result = await fetch('http://localhost:5000/api/quizzes/create',{
-                method:'POST',
-                headers : {
-                    'Content-Type' : "application/json",
-                    'Authorization' : user.token
-                },
-                body : JSON.stringify(data)
-            })
-            result = await result.json();
-        }catch(err){
-            console.log("error while submiting err : ",err)
+        if(quiz.questions){
+            try{
+                let result = await fetch(`http://localhost:5000/api/quizzes/${quiz['_id']}/edit`,{
+                    method:'PUT',
+                    headers : {
+                        'Content-Type' : "application/json",
+                        'Authorization' : user.token
+                    },
+                    body : JSON.stringify(data)
+                })
+                result = await result.json();
+                setUpdateFlag(!updateFlag);
+                setQuiz({})
+            }catch(err){
+                console.log("error while submiting err : ",err)
+            }
+        }else{
+            try{
+        data = {...data,author:user.userId};
+                let result = await fetch('http://localhost:5000/api/quizzes/create',{
+                    method:'POST',
+                    headers : {
+                        'Content-Type' : "application/json",
+                        'Authorization' : user.token
+                    },
+                    body : JSON.stringify(data)
+                })
+                result = await result.json();
+                setUpdateFlag(!updateFlag)
+                setQuiz({})
+            }catch(err){
+                console.log("error while submiting err : ",err)
+            }
         }
         // Handle form submission (e.g., send data to backend)
         console.log(quizData,"on submit");
@@ -71,10 +106,10 @@ function AdminContent() {
     useEffect(()=>{
         if(quiz.questions){
         setQuizData(quiz)}
-    },[])
+    },[quiz])
     return (
             <div className="content">
-                <div>Please chhose from side Menu</div>
+                <div>{quiz.questions?<h3>Update Quiz here</h3>:<h3>Add a new Quiz here</h3>}</div>
                 <form onSubmit={handleSubmit}>
             <div className="form-group">
                 <label>Title</label>
@@ -96,7 +131,6 @@ function AdminContent() {
                             <option value="">Select Type</option>
                             <option value="MCQ">MCQ</option>
                             <option value="Yes/No">Yes/No</option>
-                            <option value="Custom Options">Custom Options</option>
                         </select>
                     </div>
                     <div className="form-group">
@@ -104,7 +138,7 @@ function AdminContent() {
                         {question.options.map((option, optionIndex) => (
                             <input type="text" className="form-control mb-2" key={optionIndex} value={option} onChange={(e) => handleOptionChange(questionIndex, optionIndex, e)} required />
                         ))}
-                        <button type="button" className="btn btn-primary btn-sm mb-3" onClick={() => addOption(questionIndex)}>Add Option</button>
+                        <button type="button" className="btn btn-primary btn-sm mb-3 m-2" onClick={() => addOption(questionIndex)}>Add Option</button>
                     </div>
                     <div className="form-group">
                         <label>Correct Answer</label>
@@ -113,7 +147,10 @@ function AdminContent() {
                 </div>
             ))}
             <button type="button" className="btn btn-primary my-3 mx-2" onClick={addQuestion}>Add Question</button>
-            <button type="submit" className="btn btn-success">Submit</button>
+            <div className='container'><button type="submit" className="btn btn-success m-1">{quiz.questions?"Update":"Submit"}</button>
+            {quiz.questions?<button className='btn btn-danger m-1' onClick={()=>handelDelete()}>Delete</button>:""}
+            </div>
+
         </form>
             </div>
     )
